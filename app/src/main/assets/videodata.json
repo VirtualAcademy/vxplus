@@ -1,0 +1,61 @@
+[{
+  "title": "Star Wars: The Last Jedi",
+  "image": "https://api.androidhive.info/json/movies/starwars.jpg",
+  "link": "₹ 160"
+},
+  {
+    "title": "Shape Of Water",
+    "image": "https://api.androidhive.info/json/movies/shape_of_water.jpg",
+    "link": "₹ 130"
+  },
+  {
+    "title": "Baahubali: The Conclusion",
+    "image": "https://api.androidhive.info/json/movies/baahubali2.jpg",
+    "link": "₹ 210"
+  },
+  {
+    "title": "Thor: The Ragnarok",
+    "image": "https://api.androidhive.info/json/movies/thor_ragnarok.jpg",
+    "link": "₹ 170"
+  },
+  {
+    "title": "Justice League",
+    "image": "https://api.androidhive.info/json/movies/justice_league.jpg",
+    "link": "₹ 120"
+  },
+  {
+    "title": "Coco",
+    "image": "https://api.androidhive.info/json/movies/coco.jpg",
+    "link": "₹ 110"
+  },
+  {
+    "title": "Jumanji: Welcome To The Jungle",
+    "image": "https://api.androidhive.info/json/movies/jumanji.jpg",
+    "link": "₹ 120"
+  },
+  {
+    "title": "Murder On The Orient Express",
+    "image": "https://api.androidhive.info/json/movies/murder_on_express.jpg",
+    "link": "₹ 160"
+  },
+  {
+    "title": "Spider-Man: Homecoming",
+    "image": "https://api.androidhive.info/json/movies/spiderman_homecoming.jpg",
+    "link": "₹ 190"
+  },
+  {
+    "title": "Ferdinand",
+    "image": "https://api.androidhive.info/json/movies/ferdinand.jpg",
+    "link": "₹ 100"
+  },
+  {
+    "title": "The Disaster Artist",
+    "image": "https://api.androidhive.info/json/movies/disaster_artist.jpg",
+    "link": "₹ 90"
+  },
+  {
+    "title": "Lady Bird",
+    "image": "https://api.androidhive.info/json/movies/lady_bird.jpg",
+    "link": "₹ 80"
+  }
+]
