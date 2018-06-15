@@ -3,7 +3,7 @@ package com.ndicson.vxplayer;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Rect;
-import android.net.Uri;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -13,10 +13,7 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -35,20 +32,13 @@ import java.util.List;
  */
 public class LocalFragment extends Fragment {
 
-//    private static final String TAG = StoreFragment.class.getSimpleName();
-//    private static final String URL = "https://api.androidhive.info/json/movies_2017.json";
-//
-//    private RecyclerView recyclerView;
-//    private List<Movie> movieList;
-//    private StoreAdapter mAdapter;
 
-
+    private String localV = "vdatalocal.json";
     private static final String TAG = LocalFragment.class.getSimpleName();
-    private static final String URL = "https://api.androidhive.info/json/movies_2017.json";
 
     private RecyclerView recyclerView;
     private List<Video> videoList;
-    private LocalAdapter mAdapter;
+    private VideoAdapter mAdapter;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -102,7 +92,7 @@ public class LocalFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.recycler_view);
         videoList = new ArrayList<>();
-        mAdapter = new LocalAdapter(getActivity(), videoList);
+        mAdapter = new VideoAdapter(getActivity(), videoList);
 
         RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 3);
         recyclerView.setLayoutManager(mLayoutManager);
@@ -116,10 +106,11 @@ public class LocalFragment extends Fragment {
     }
 
 
-    private String readJson(Context context) {
-        String json = null;
+
+    private String readFilefromAsset(Context context, String fname) {
+        String files = null;
         try {
-            InputStream is = context.getAssets().open("vdatalocal.json");
+            InputStream is = context.getAssets().open(fname);
 
             int size = is.available();
 
@@ -129,19 +120,19 @@ public class LocalFragment extends Fragment {
 
             is.close();
 
-            json = new String(buffer, "UTF-8");
+            files = new String(buffer, "UTF-8");
 
 
         } catch (IOException ex) {
             ex.printStackTrace();
             return null;
         }
-        return json;
+        return files;
 
     }
 
     private void fetchLocalItems() {
-        String jsondata = readJson(getContext());
+        String jsondata = readFilefromAsset(getContext(),localV);
         List<Video> items = new Gson().fromJson(jsondata, new TypeToken<List<Video>>() {
         }.getType());
         videoList.clear();
@@ -194,52 +185,6 @@ public class LocalFragment extends Fragment {
         return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics()));
     }
 
-    class LocalAdapter extends RecyclerView.Adapter<LocalAdapter.MyViewHolder> {
-        private Context context;
-        private List<Video> videoList;
-
-        public class MyViewHolder extends RecyclerView.ViewHolder {
-            public TextView name, link;
-            public ImageView thumbnail;
-
-            public MyViewHolder(View view) {
-                super(view);
-                name = view.findViewById(R.id.title);
-                link = view.findViewById(R.id.link);
-                thumbnail = view.findViewById(R.id.thumbnail);
-            }
-        }
-
-
-        public LocalAdapter(Context context, List<Video> videoList) {
-            this.context = context;
-            this.videoList = videoList;
-        }
-
-        @Override
-        public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View itemView = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.localvideo_item_row, parent, false);
-
-            return new MyViewHolder(itemView);
-        }
-
-        @Override
-        public void onBindViewHolder(MyViewHolder holder, final int position) {
-            final Video video = videoList.get(position);
-            holder.name.setText(video.getTitle());
-            holder.link.setText(video.getLink());
-
-            Glide.with(context)
-                    .load(video.getImage())
-                    .into(holder.thumbnail);
-        }
-
-        @Override
-        public int getItemCount() {
-            return videoList.size();
-        }
-    }
 
 //    // TODO: Rename method, update argument and hook method into UI event
 //    public void onButtonPressed(Uri uri) {
@@ -279,4 +224,22 @@ public class LocalFragment extends Fragment {
 //        // TODO: Update argument type and name
 //        void onFragmentInteraction(Uri uri);
 //    }
+
+    private Drawable loadImage(String s){
+        Drawable d = null;
+        try
+        {
+            // get input stream
+            InputStream ims = getContext().getAssets().open(s);
+            // load image as Drawable
+            d = Drawable.createFromStream(ims, null);
+            // set image to ImageView
+            ims .close();
+            return d;
+        }
+        catch(IOException ex)
+        {
+            return d;
+        }
+    }
 }

@@ -49,7 +49,7 @@ public class OnlineFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private List<Video> videoList;
-    private OnlineAdapter mAdapter;
+    private VideoAdapter mAdapter;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -103,7 +103,7 @@ public class OnlineFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.recycler_view);
         videoList = new ArrayList<>();
-        mAdapter = new OnlineAdapter(getActivity(), videoList);
+        mAdapter = new VideoAdapter(getActivity(), videoList);
 
         RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 3);
         recyclerView.setLayoutManager(mLayoutManager);
@@ -150,35 +150,6 @@ public class OnlineFragment extends Fragment {
         // refreshing recycler view
          mAdapter.notifyDataSetChanged();
     }
-//        JsonArrayRequest request = new JsonArrayRequest(URL,
-//                new Response.Listener<JSONArray>() {
-//                    @Override
-//                    public void onResponse(JSONArray response) {
-//                        if (response == null) {
-//                            Toast.makeText(getActivity(), "Couldn't fetch the online video items! Pleas try again.", Toast.LENGTH_LONG).show();
-//                            return;
-//                        }
-//
-//                        List<Video> items = new Gson().fromJson(response.toString(), new TypeToken<List<Video>>() {
-//                        }.getType());
-//
-//                        videoList.clear();
-//                        videoList.addAll(items);
-//
-//                        // refreshing recycler view
-//                        mAdapter.notifyDataSetChanged();
-//                    }
-//                }, new Response.ErrorListener() {
-//            @Override
-//            public void onErrorResponse(VolleyError error) {
-//                // error in getting json
-//                Log.e(TAG, "Error: " + error.getMessage());
-//                Toast.makeText(getActivity(), "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//
-//        MyApplication.getInstance().addToRequestQueue(request);
-//    }
 
     public class GridSpacingItemDecoration extends RecyclerView.ItemDecoration {
 
@@ -223,52 +194,52 @@ public class OnlineFragment extends Fragment {
         return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics()));
     }
 
-    class OnlineAdapter extends RecyclerView.Adapter<OnlineAdapter.MyViewHolder> {
-        private Context context;
-        private List<Video> videoList;
-
-        public class MyViewHolder extends RecyclerView.ViewHolder {
-            public TextView name, link;
-            public ImageView thumbnail;
-
-            public MyViewHolder(View view) {
-                super(view);
-                name = view.findViewById(R.id.title);
-                link = view.findViewById(R.id.link);
-                thumbnail = view.findViewById(R.id.thumbnail);
-            }
-        }
-
-
-        public OnlineAdapter(Context context, List<Video> videoList) {
-            this.context = context;
-            this.videoList = videoList;
-        }
-
-        @Override
-        public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View itemView = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.onlinevideo_item_row, parent, false);
-
-            return new MyViewHolder(itemView);
-        }
-
-        @Override
-        public void onBindViewHolder(MyViewHolder holder, final int position) {
-            final Video video = videoList.get(position);
-            holder.name.setText(video.getTitle());
-            holder.link.setText(video.getLink());
-
-            Glide.with(context)
-                    .load(video.getImage())
-                    .into(holder.thumbnail);
-        }
-
-        @Override
-        public int getItemCount() {
-            return videoList.size();
-        }
-    }
+//    class OnlineAdapter extends RecyclerView.Adapter<OnlineAdapter.MyViewHolder> {
+//        private Context context;
+//        private List<Video> videoList;
+//
+//        public class MyViewHolder extends RecyclerView.ViewHolder {
+//            public TextView name, location;
+//            public ImageView thumbnail;
+//
+//            public MyViewHolder(View view) {
+//                super(view);
+//                name = view.findViewById(R.id.title);
+//                location = view.findViewById(R.id.location);
+//                thumbnail = view.findViewById(R.id.thumbnail);
+//            }
+//        }
+//
+//
+//        public OnlineAdapter(Context context, List<Video> videoList) {
+//            this.context = context;
+//            this.videoList = videoList;
+//        }
+//
+//        @Override
+//        public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+//            View itemView = LayoutInflater.from(parent.getContext())
+//                    .inflate(R.layout.onlinevideo_item_row, parent, false);
+//
+//            return new MyViewHolder(itemView);
+//        }
+//
+//        @Override
+//        public void onBindViewHolder(MyViewHolder holder, final int position) {
+//            final Video video = videoList.get(position);
+//            holder.name.setText(video.getTitle());
+//            holder.location.setText(video.getLink());
+//
+//            Glide.with(context)
+//                    .load(video.getImage())
+//                    .into(holder.thumbnail);
+//        }
+//
+//        @Override
+//        public int getItemCount() {
+//            return videoList.size();
+//        }
+//    }
     
 //    // TODO: Rename method, update argument and hook method into UI event
 //    public void onButtonPressed(Uri uri) {

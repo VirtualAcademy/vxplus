@@ -1,6 +1,7 @@
 package com.ndicson.vxplayer;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
@@ -9,6 +10,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListAdapter;
@@ -16,16 +18,19 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
+import java.util.List;
+import android.widget.Toast;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements VideoFragment.OnFragmentInteractionListener {
 
     private ActionBar toolbar;
 
     private TextView mTextMessage;
     private int from_Where_I_Am_Coming = 0;
-    private DBHelper mydb ;
+    public DBHelper mydb ;
 
     TextView vTitle ;
     TextView phone;
@@ -37,7 +42,10 @@ public class MainActivity extends AppCompatActivity {
     ListAdapter adapter;
     private FragmentManager fragmentManager;
 
-    private Fragment fragment;
+    private Fragment fragment1, fragment2;
+
+    private List<Video> vlist;
+
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -46,21 +54,20 @@ public class MainActivity extends AppCompatActivity {
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    toolbar.setTitle(R.string.title_home);
-//                    mTextMessage.setText(R.string.title_home);
-                    fragment = new LocalFragment();
-                    loadFragment(fragment);
+//                    fragment = new LocalFragment();
 
-//                    mydb.getAllVideos();
+//                    fragment1 = VideoFragment.newInstance("local");
+                    loadFragment(fragment1,"A");
 
                     return true;
                 case R.id.navigation_dashboard:
-                    from_Where_I_Am_Coming=1;
-                    toolbar.setTitle(R.string.title_dashboard);
-//                    mTextMessage.setText(R.string.title_dashboard);
-                    fragment = new OnlineFragment();
-                    loadFragment(fragment);
-//                    listView.setAdapter(adapter);
+//                    from_Where_I_Am_Coming=1;
+//                    fragment = new VideoFragment();
+
+//                    fragment2 = VideoFragment.newInstance("online");
+
+//                    fragment.fetchItems(vlist);
+                    loadFragment(fragment2,"B");
                     return true;
             }
 
@@ -70,29 +77,23 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(R.style.AppTheme2);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        mydb = DBHelper.getInstance(this);
+        if(mydb.getVideosCount()==0){
+            mydb.populateDB(getApplicationContext(),Video.ONLINEDATA);
+            mydb.populateDB(getApplicationContext(),Video.LOCALDATA);
+        }
 
         toolbar = getSupportActionBar();
 
         // load the store fragment by default
-        toolbar.setTitle(R.string.title_home);
-        loadFragment(new LocalFragment());
+//        toolbar.setTitle(R.string.app_name);
+        fragment1 = VideoFragment.newInstance("local");
+        fragment2 = VideoFragment.newInstance("online");
 
-//        mTextMessage = (TextView) findViewById(R.id.message);
-//
-//                vTitle = (TextView) findViewById(R.id.editTextName);
-//                place = (TextView) findViewById(R.id.editTextCity);
-//                listView = (ListView) findViewById(R.id.list_items);
-//                loadFragment(new LocalVideoFragment());
-//
-//                mydb = new DBHelper(this);
-//                ArrayList<HashMap<String, String>> videoListData;
-//                VideoManager pl =  new VideoManager();
-//                videoListData = pl.getPlayList();
-//                adapter=new SimpleAdapter(getApplicationContext(), videoListData, R.layout.playlist_item, new String[]{"videoTitle"}, new int[]{ R.id.videoTitle});
-//        listView.setAdapter(adapter);
+        loadFragment(fragment1,"A");
 
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
@@ -156,11 +157,28 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void loadFragment(Fragment fragment) {
+    private void loadFragment(Fragment fragment,String letter) {
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        if (fragment.isAdded()) { // if the fragment is already in container
+            ft.show(fragment);
+        }else{ // fragment needs to be added to frame container
+            ft.add(R.id.frame_container, fragment, letter);
+        }
+        // Hide fragment B
+        if (letter.toUpperCase().equals("A")) { ft.hide(fragment2); }
+        // Hide fragment C
+        else if (letter.toUpperCase().equals("B")) { ft.hide(fragment1); }
+        // Commit changes
+        ft.commit();
         // load fragment
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.frame_container, fragment);
-        transaction.addToBackStack(null);
-        transaction.commit();
+//        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+//        transaction.replace(R.id.frame_container, fragment);
+//        transaction.addToBackStack(null);
+//        transaction.commit();
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
     }
 }

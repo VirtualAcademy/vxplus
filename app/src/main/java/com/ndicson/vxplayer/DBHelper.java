@@ -6,103 +6,286 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
+import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class DBHelper extends SQLiteOpenHelper {
 
-    public static final String DATABASE_NAME = "VideosOnline.db";
-    public static final String VIDEOONLINE_TABLE_NAME = "VideoOnline";
-    public static final String VIDEOONLINE_COLUMN_ID = "id";
-    public static final String VIDEOONLINE_COLUMN_NAME = "Title";
-    public static final String VIDEOONLINE_COLUMN_URI = "uri";
-    public static final String VIDEOONLINE_COLUMN_IMAGE = "image";
-    public static final String VIDEOONLINE_COLUMN_LOCATION = "location";
     private HashMap hp;
 
-    private String location = "Online";
 
+    public Context mContext;
+
+
+    // Database Version
+    private static final int DATABASE_VERSION = 1;
+
+    // Database Name
+    public static final String DATABASE_NAME = "Videos.db";
+
+    private static DBHelper sInstance;
     public DBHelper(Context context) {
-        super(context, DATABASE_NAME , null, 1);
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        mContext = context;
+
     }
 
+    // ...
+
+    public static synchronized DBHelper getInstance(Context context) {
+        // Use the application context, which will ensure that you
+        // don't accidentally leak an Activity's context.
+        // See this article for more information: http://bit.ly/6LRzfx
+        if (sInstance == null) {
+            sInstance = new DBHelper(context.getApplicationContext());
+        }
+        return sInstance;
+    }
+
+
+    // Creating Tables
     @Override
     public void onCreate(SQLiteDatabase db) {
         // TODO Auto-generated method stub
-        db.execSQL(
-                "create table videoonline " +
-                        "(id integer primary key, name text,location text,uri text, image text)"
-        );
 
-        db.execSQL("CREATE TABLE " + VIDEOONLINE_TABLE_NAME + " ("
-                + VIDEOONLINE_COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + VIDEOONLINE_COLUMN_NAME + " TEXT, "
-                + VIDEOONLINE_COLUMN_LOCATION + " TEXT DEFAULT 'Online', "
-                + VIDEOONLINE_COLUMN_URI + " TEXT,"
-                + VIDEOONLINE_COLUMN_IMAGE + "TEXT);");
+        // create videos table
+        db.execSQL(Video.CREATE_TABLE);
+//        this.populateDB(mContext,Video.LOCALDATA);
+//        this.populateDB(mContext,Video.ONLINEDATA);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // TODO Auto-generated method stub
-        db.execSQL("DROP TABLE IF EXISTS videoonline");
+        // Drop older table if existed
+        db.execSQL("DROP TABLE IF EXISTS " + Video.TABLE_NAME);
+
+        // Create tables again
         onCreate(db);
     }
 
     public boolean insertVideo (String name, String location, String uri, String image) {
+
+        // get writable database as we want to write data
         SQLiteDatabase db = this.getWritableDatabase();
+        // `id` will be inserted automatically, no need to add it
         ContentValues contentValues = new ContentValues();
-        contentValues.put("name", name);
-        contentValues.put("location", location);
-        contentValues.put("uri", uri);
-        contentValues.put("image", image);
-        db.insert("videoonline", null, contentValues);
+        contentValues.put(Video.COLUMN_TITLE, name);
+        contentValues.put(Video.COLUMN_LOCATION, location);
+        contentValues.put(Video.COLUMN_LINK, uri);
+        contentValues.put(Video.COLUMN_IMAGE, image);
+
+        // insert row
+        db.insert(Video.TABLE_NAME, null, contentValues);
+
+        // close db connection
+        db.close();
+
+        // return newly inserted true
         return true;
     }
 
-    public Cursor getData(int id) {
+    public Video getVideo(int id) {
+        // get readable database as we are not inserting anything
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res =  db.rawQuery( "select * from videoonline where id="+id+"", null );
-        return res;
+
+        Cursor cursor = db.query(Video.TABLE_NAME,
+                new String[]{Video.COLUMN_ID, Video.COLUMN_TITLE,Video.COLUMN_LINK , Video.COLUMN_LOCATION,Video.COLUMN_IMAGE},
+                Video.COLUMN_ID + "=?",
+                new String[]{String.valueOf(id)}, null, null, null, null);
+
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        // prepare video object
+        Video video = new Video(
+                cursor.getInt(cursor.getColumnIndex(Video.COLUMN_ID)),
+                cursor.getString(cursor.getColumnIndex(Video.COLUMN_TITLE)),
+                cursor.getString(cursor.getColumnIndex(Video.COLUMN_LINK)),
+                cursor.getString(cursor.getColumnIndex(Video.COLUMN_LOCATION)),
+                cursor.getString(cursor.getColumnIndex(Video.COLUMN_IMAGE)));
+
+        // close the db connection
+        cursor.close();
+
+        return video;
     }
 
-    public int numberOfRows(){
-        SQLiteDatabase db = this.getReadableDatabase();
-        int numRows = (int) DatabaseUtils.queryNumEntries(db, VIDEOONLINE_TABLE_NAME);
-        return numRows;
-    }
 
-    public boolean updateVideo (Integer id, String name, String location, String uri, String image) {
+
+    public List<Video> getGivenVideos(String location) {
+        List<Video> videos = new ArrayList<>();
+
+        // Select All Query
+        String selectQuery = "SELECT  * FROM " + Video.TABLE_NAME + " ORDER BY " +
+                Video.COLUMN_ID + " DESC";
+
         SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put("name", name);
-        contentValues.put("location", location);
-        contentValues.put("uri", uri);
-        contentValues.put("image", image);
-        db.update("videoonline", contentValues, "id = ? ", new String[] { Integer.toString(id) } );
-        return true;
-    }
+        Cursor cursor = db.rawQuery(selectQuery, null);
 
-    public Integer deleteVideo (Integer id) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        return db.delete("videoonline",
-                "id = ? ",
-                new String[] { Integer.toString(id) });
-    }
-
-    public ArrayList<String> getAllVideos() {
-        ArrayList<String> array_list = new ArrayList<String>();
-
-        //hp = new HashMap();
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res =  db.rawQuery( "select * from videoonline", null );
-        res.moveToFirst();
-
-        while(res.isAfterLast() == false){
-            array_list.add(res.getString(res.getColumnIndex(VIDEOONLINE_COLUMN_NAME)));
-            res.moveToNext();
+        // looping through all rows and adding to list
+        if (cursor.moveToFirst()) {
+            do {
+                Video video = new Video();
+                // get location
+                String lo = cursor.getString(cursor.getColumnIndex(Video.COLUMN_LOCATION));
+                if(lo.trim().equals(location)) {// Compare location
+                    video.setId(cursor.getInt(cursor.getColumnIndex(Video.COLUMN_ID)));
+                    video.setTitle(cursor.getString(cursor.getColumnIndex(Video.COLUMN_TITLE)));
+                    video.setLink(cursor.getString(cursor.getColumnIndex(Video.COLUMN_LINK)));
+                    video.setLocation(lo);
+                    video.setImage(cursor.getString(cursor.getColumnIndex(Video.COLUMN_IMAGE)));
+                    videos.add(video);
+                }
+            } while (cursor.moveToNext());
         }
-        return array_list;
+
+        // close db connection
+        db.close();
+
+        // return videos list
+        return videos;
     }
+
+
+    public List<Video> getAllVideos() {
+        List<Video> videos = new ArrayList<>();
+
+        // Select All Query
+        String selectQuery = "SELECT  * FROM " + Video.TABLE_NAME + " ORDER BY " +
+                Video.COLUMN_ID + " DESC";
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        // looping through all rows and adding to list
+        if (cursor.moveToFirst()) {
+            do {
+                Video video = new Video();
+                video.setId(cursor.getInt(cursor.getColumnIndex(Video.COLUMN_ID)));
+                video.setTitle(cursor.getString(cursor.getColumnIndex(Video.COLUMN_TITLE)));
+                video.setLink(cursor.getString(cursor.getColumnIndex(Video.COLUMN_LINK)));
+                video.setLocation(cursor.getString(cursor.getColumnIndex(Video.COLUMN_LOCATION)));
+                video.setImage(cursor.getString(cursor.getColumnIndex(Video.COLUMN_IMAGE)));
+
+                videos.add(video);
+            } while (cursor.moveToNext());
+        }
+
+        // close db connection
+        db.close();
+
+        // return videos list
+        return videos;
+    }
+
+    public int getVideosCount() {
+        String countQuery = "SELECT  * FROM " + Video.TABLE_NAME;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(countQuery, null);
+
+        int count = cursor.getCount();
+        cursor.close();
+
+
+        // return count
+        return count;
+    }
+
+    public int updateVideo(Video video) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(Video.COLUMN_TITLE, video.getTitle());
+        values.put(Video.COLUMN_LINK, video.getLink());
+        values.put(Video.COLUMN_LOCATION, video.getLocation());
+        values.put(Video.COLUMN_IMAGE, video.getImage());
+
+        // updating row
+        return db.update(Video.TABLE_NAME, values, Video.COLUMN_ID + " = ?",
+                new String[]{String.valueOf(video.getId())});
+    }
+
+    public void deleteVideo(Video video) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(Video.TABLE_NAME, Video.COLUMN_ID + " = ?",
+                new String[]{String.valueOf(video.getId())});
+        db.close();
+    }
+
+    private String readFilefromAsset(Context context, String fname) {
+        String json = null;
+        try {
+            InputStream is = context.getAssets().open(fname);
+
+            int size = is.available();
+
+            byte[] buffer = new byte[size];
+
+            is.read(buffer);
+
+            is.close();
+
+            json = new String(buffer, "UTF-8");
+
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+        return json;
+    }
+    public void populateDB(Context context,String ls) {
+        // Variables
+        ArrayList<HashMap<String, String>> videoList = new ArrayList<HashMap<String, String>>();
+
+        List<Video> items;
+        String jsondata = readFilefromAsset(context,ls);
+
+        items = new Gson().fromJson(jsondata, new TypeToken<List<Video>>() {}.getType());
+
+        ArrayList<HashMap<String, String>> videoListData = new ArrayList<HashMap<String, String>>();
+
+        VideoManager plm = new VideoManager();
+        // get all video from sdcard
+        videoList = plm.getPlayList();
+
+        // looping through playlist
+        for (int i = 0; i<items.size(); i++) {
+            // creating new HashMap
+
+            Video v=items.get(i);
+            // Get info
+            String Title = v.getTitle();
+            String Location = v.getLocation();
+            if(Location.toLowerCase().contains("local")){
+                HashMap<String, String> video = videoList.get(i);
+                if(video.get("videoTitle").toString().toLowerCase().contains(Title.toLowerCase())){
+                    String pathV = video.get("videoPath");
+                    v.setLink(pathV);
+                    if(insertVideo(v.getTitle(),v.getLocation(),v.getLink(),v.getImage())) {
+                        Log.i("database",String.valueOf(i)+" inserted");
+                        Toast.makeText(context, String.valueOf(i)+" inserted "+v.getLocation(), Toast.LENGTH_SHORT).show();
+                }
+//                insertVideo(v.getTitle(),v.getLocation(),v.getLink(),v.getImage());
+            }
+//                Toast.makeText(context, String.valueOf(i)+" inserted", Toast.LENGTH_SHORT).show();
+            }else if(insertVideo(v.getTitle(),v.getLocation(),v.getLink(),v.getImage())) {
+                Log.i("database", String.valueOf(i) + " inserted");
+            }
+        }
+        Toast.makeText(context,"database populated",Toast.LENGTH_SHORT).show();
+
+            }
+
+
 }
