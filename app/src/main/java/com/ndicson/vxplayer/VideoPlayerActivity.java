@@ -286,6 +286,8 @@ public class VideoPlayerActivity extends Activity implements SurfaceHolder.Callb
      * */
     private void playVideo(int currentVideoIndex) {
 
+        Toast.makeText(getApplicationContext(),"playing id: "+String.valueOf(currentVideoIndex),Toast.LENGTH_SHORT).show();
+
         // Play video
         try {
 
