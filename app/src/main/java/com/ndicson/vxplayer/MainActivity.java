@@ -7,26 +7,25 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
-
-import java.util.List;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import android.support.v7.widget.Toolbar;
 
-public class MainActivity extends AppCompatActivity implements VideoFragment.OnFragmentInteractionListener {
 
-    private ActionBar toolbar;
+
+public class MainActivity extends AppCompatActivity implements OnlineFragment.OnFragmentInteractionListener ,LocalFragment.OnFragmentInteractionListener{
+
+    private Toolbar mytoolbar;
 
     private TextView mTextMessage;
     private int from_Where_I_Am_Coming = 0;
@@ -41,10 +40,12 @@ public class MainActivity extends AppCompatActivity implements VideoFragment.OnF
     ListView listView;
     ListAdapter adapter;
     private FragmentManager fragmentManager;
+    public TextView textView;
 
     private Fragment fragment1, fragment2;
 
     private List<Video> vlist;
+    public String loc;
 
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -54,17 +55,20 @@ public class MainActivity extends AppCompatActivity implements VideoFragment.OnF
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_home:
+                    loc = "local";
 //                    fragment = new LocalFragment();
 
-//                    fragment1 = VideoFragment.newInstance("local");
+//                    textView.setText("Local Video List");
+                    fragment1 = LocalFragment.newInstance("local");
                     loadFragment(fragment1,"A");
 
                     return true;
                 case R.id.navigation_dashboard:
+                    loc = "online";
 //                    from_Where_I_Am_Coming=1;
 //                    fragment = new VideoFragment();
 
-//                    fragment2 = VideoFragment.newInstance("online");
+                    fragment2 = OnlineFragment.newInstance("online");
 
 //                    fragment.fetchItems(vlist);
                     loadFragment(fragment2,"B");
@@ -80,53 +84,58 @@ public class MainActivity extends AppCompatActivity implements VideoFragment.OnF
         setTheme(R.style.AppTheme2);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         mydb = DBHelper.getInstance(this);
         if(mydb.getVideosCount()==0){
-            mydb.populateDB(getApplicationContext(),Video.ONLINEDATA);
-            mydb.populateDB(getApplicationContext(),Video.LOCALDATA);
+            mydb.populateDB(getApplicationContext(),"local");
+            mydb.populateDB(getApplicationContext(),"online");
         }
 
-        toolbar = getSupportActionBar();
+        mytoolbar = (Toolbar) findViewById(R.id.toolbar);
+//        setSupportActionBar(mytoolbar);
+
 
         // load the store fragment by default
 //        toolbar.setTitle(R.string.app_name);
-        fragment1 = VideoFragment.newInstance("local");
-        fragment2 = VideoFragment.newInstance("online");
+        fragment1 = LocalFragment.newInstance("local");
+
 
         loadFragment(fragment1,"A");
+//        textView = (TextView) fragment1.getView().findViewById(R.id.displaytxt);
 
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-//        Bundle extras = getIntent().getExtras();
-//
-//        if(from_Where_I_Am_Coming != 0) {
-//            if(from_Where_I_Am_Coming == 1){
-//                getMenuInflater().inflate(R.menu.main_menu, menu);
-//            }
-//            else{
-//                getMenuInflater().inflate(R.menu.display_video, menu);
-//            }
-//        }
+        MenuInflater myInflater = getMenuInflater();
+        Intent actIntent = getIntent();
+        if(loc!=null){
+            if(loc.equals("local")) {
+                myInflater.inflate(R.menu.main_menu, menu);
+            }
+            else{
+                myInflater.inflate(R.menu.online_menu, menu);
+            }
+        }else {
+            myInflater.inflate(R.menu.main_menu, menu);
+        }
         return true;
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
         super.onOptionsItemSelected(item);
         switch(item.getItemId()) {
-            case R.id.New:
-//                Intent intent = new Intent(getApplicationContext(),DisplayVideo.class);
-//                startActivity(intent);
+            case R.id.addVideo:
+//                readSD();
 
-//            case R.id.Edit_Video:
-//                Button b = (Button)findViewById(R.id.button1);
-//                b.setVisibility(View.VISIBLE);
-//                return true;
+            case R.id.rdSD:
+                readSD();
+                return true;
 //
 //            case R.id.Delete_Video:
 //                AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -157,24 +166,33 @@ public class MainActivity extends AppCompatActivity implements VideoFragment.OnF
         }
     }
 
-    private void loadFragment(Fragment fragment,String letter) {
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        if (fragment.isAdded()) { // if the fragment is already in container
-            ft.show(fragment);
-        }else{ // fragment needs to be added to frame container
-            ft.add(R.id.frame_container, fragment, letter);
+    private void readSD() {
+        VideoManager vmgr = new VideoManager();
+        ArrayList<HashMap<String, String>> vls = vmgr.getPlayList();
+        Video mySDvid = new Video();
+        ArrayList<Video> li=new ArrayList<>();
+        ArrayList<String>g=new ArrayList<>();
+        for (HashMap<String, String> arr:vls
+             ) {
+            g.add(arr.get("videoTitle"));
+            g.add(arr.get("videoPath"));
+            mySDvid.setTitle(arr.get("videoTitle"));
+            mySDvid.setTitle(arr.get("videoPath"));
+            li.add(mySDvid);
         }
-        // Hide fragment B
-        if (letter.toUpperCase().equals("A")) { ft.hide(fragment2); }
-        // Hide fragment C
-        else if (letter.toUpperCase().equals("B")) { ft.hide(fragment1); }
-        // Commit changes
-        ft.commit();
-        // load fragment
-//        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-//        transaction.replace(R.id.frame_container, fragment);
-//        transaction.addToBackStack(null);
-//        transaction.commit();
+        playlistAdapter pls = new playlistAdapter(getApplicationContext(),li);
+        Intent dle = new Intent(this,SDcard.class);
+        dle.putStringArrayListExtra("data",g);
+        startActivity(dle);
+    }
+
+    private void loadFragment(Fragment fragment,String letter) {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.frame_container, fragment);
+
+//        // Commit changes
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 
     @Override
