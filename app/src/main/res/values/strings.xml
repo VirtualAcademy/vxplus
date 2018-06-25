@@ -2,27 +2,12 @@
     <string name="app_name">VXPlayer</string>
     <string name="title_home">Local Videos</string>
     <string name="title_dashboard">Online Videos</string>
-    <string name="title_notifications">Recent</string>
     <!-- video -->
-    <string name="action_settings">Settings</string>
-    <string name="Add_New">Add New</string>
-    <string name="edit">Edit Video Details</string>
-    <string name="delete">Delete Video</string>
-    <string name="title_activity_display_video">DisplayVideo</string>
-    <string name="title">Title</string>
-    <string name="location">Location</string>
-    <string name="link">Link</string>
-    <string name="image">Image</string>
-    <string name="save">Save Video</string>
-    <string name="deleteVideo">Are you sure, you want to delete it.</string>
-    <string name="screen">VIDEO PLAYER</string>
-    <string name="yes">Yes</string>
-    <string name="no">No</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="local_video_fragment">Hello local video fragment</string>
-    <string name="online_video_fragment">Hello Online video fragment</string>
+    <string name="Add_New">Add</string>
+    <string name="RdSD">Search SDcard</string>
+    <string name="go">Visit a Link...</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

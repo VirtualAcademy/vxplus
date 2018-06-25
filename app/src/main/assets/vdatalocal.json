@@ -25,5 +25,19 @@
     "image": "Big_Buck_Bunny.jpg",
     "link": "₹ 170",
     "location": "local"
+  },
+  {
+    "id":5,
+    "title": "Monkaa",
+    "image": "bird.png",
+    "link": "₹ 170",
+    "location": "local"
+  },
+  {
+    "id":6,
+    "title": "Caminandes: Gran Dillama (2013)",
+    "image": "poster-caminandes_grandillama.jpg",
+    "link": "₹ 170",
+    "location": "local"
   }
   ]

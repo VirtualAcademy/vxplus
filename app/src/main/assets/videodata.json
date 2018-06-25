@@ -16,41 +16,41 @@
     "id":3,
     "title": "Yo Frankie!",
     "image": "https://apricot.blender.org/wp-content/uploads/2008/07/frankie.png?x20393",
-    "link": "₹ 210",
+    "link": "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4",
     "location": "online"
   },
   {
     "id":4,
     "title": "Thor: The Ragnarok",
     "image": "https://api.androidhive.info/json/movies/thor_ragnarok.jpg",
-    "link": "₹ 170",
+    "link": "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4",
     "location": "online"
   },
   {
     "id":5,
     "title": "Justice League",
     "image": "https://api.androidhive.info/json/movies/justice_league.jpg",
-    "link": "₹ 120",
+    "link": "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4",
     "location": "online"
   },
   {
     "id":6,
     "title": "Coco",
     "image": "https://api.androidhive.info/json/movies/coco.jpg",
-    "link": "₹ 110",
+    "link": "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4",
     "location": "online"
   },
   {
     "id":7,
     "title": "Monkaa",
     "image": "https://api.androidhive.info/json/movies/murder_on_express.jpg",
-    "link": "https://storage.googleapis.com/55f349f92beb33004d4431e4/_%2F161fd7aa38e8b53d90f7e8ae0ebe5c4ba85f0565.mp4?GoogleAccessId=956532172770-27ie9eb8e4u326l89p7b113gcb04cdgd%40developer.gserviceaccount.com&Expires=1528893711&Signature=jTgDu3celzGYUyY0HwYk6zg0HJT0nXLg%2BZvwtqREEuo6V9k7kCXASJdcB9tXTqjJ1x9LK%2F%2FsfuilugsJ85qa5BDZxrjUy2Ph%2FpjnrwykjWKenuaoUTfylXgnp2dDsKysr9uJEFVuyp%2FceUktExkbuow42ukoqGjyGfoWysCsYBuB%2Bi7S2l9XOXmcOSaARvj4tqTnTL3MAIRlUcOJC3ppXAID8cJmRGEhGFU9rf5sALUhIZsV3NWUU27x%2FU0qtojmjvoibdQmJF6WfYaYYMHObFA3ANk5slmm%2Fo16nL6kFVpDev44c%2B8wnaTwgL22xUMG4FCFxQfKe87Mo7miGBBNvg%3D%3D",
-    "location": "online"},
+    "link":"http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4",
+  "location": "online"},
   {
     "id":8,
     "title": "Lady Bird",
     "image": "https://api.androidhive.info/json/movies/lady_bird.jpg",
-    "link": "b",
+    "link": "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4",
     "location": "online"
   }
 ]

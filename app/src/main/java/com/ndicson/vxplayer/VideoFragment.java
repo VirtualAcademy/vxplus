@@ -1,6 +1,7 @@
 package com.ndicson.vxplayer;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.net.Uri;
@@ -9,10 +10,12 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -32,11 +35,12 @@ import java.util.List;
  * Use the {@link VideoFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class VideoFragment extends Fragment {
+public class VideoFragment extends Fragment implements View.OnClickListener {
 
     private RecyclerView recyclerView;
     private List<Video> videoList;
     private VideoAdapter mAdapter;
+    private TextView textView;
     List<Video> vlist;
 //    private Context vFContext;
 //
@@ -84,7 +88,7 @@ public class VideoFragment extends Fragment {
             vLocation = getArguments().getString(ARG_PARAM1);
         }
 //        List<Video> vList = dbHelper.getAllVideos();
-        fetchItems(vLocation);
+//        fetchItems(vLocation);
 
     }
 
@@ -97,6 +101,10 @@ public class VideoFragment extends Fragment {
 
 
         recyclerView = view.findViewById(R.id.recycler_view);
+        textView = view.findViewById(R.id.displaytxt);
+
+        textView.setText(vLocation.toUpperCase()+" VIDEOS");
+        textView.setTextColor(getResources().getColor(R.color.bgBottomNavigation));
 
         RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 3);
         recyclerView.setLayoutManager(mLayoutManager);
@@ -104,54 +112,38 @@ public class VideoFragment extends Fragment {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
         recyclerView.setNestedScrollingEnabled(false);
+//        recyclerView.setClickable(true);
+//        recyclerView.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Toast.makeText(getContext(),"id clicked: "+String.valueOf(v.getId()),Toast.LENGTH_SHORT).show();
+//            }
+//        });
 ////        vlist = dbHelper.getAllVideos();
-//        fetchItems(vLocation);
+        fetchItems(vLocation);
         return view;
     }
 
-//    private String readJson(Context context) {
-//        String json = null;
-//        try {
-//            InputStream is = context.getAssets().open("videodata.json");
-//
-//            int size = is.available();
-//
-//            byte[] buffer = new byte[size];
-//
-//            is.read(buffer);
-//
-//            is.close();
-//
-//            json = new String(buffer, "UTF-8");
-//
-//
-//        } catch (IOException ex) {
-//            ex.printStackTrace();
-//            return null;
-//        }
-//        return json;
-
-//    }
-
     public void fetchItems(String loc) {
-//        dbHelper = DBHelper.getInstance(getContext());
-////        dbHelper.populateDB(getContext(),Video.ONLINEDATA);
-////        dbHelper.populateDB(getContext(),Video.LOCALDATA);;
-//        List<Video> vlist = dbHelper.getAllVideos();
-//        if(vlist.isEmpty()){
-//            Toast.makeText(getContext(),"this emptylist",Toast.LENGTH_SHORT).show();
-//        }
-
-//        String jsondata = readJson(getContext());
-//        List<Video> items = new Gson().fromJson(jsondata, new TypeToken<List<Video>>() {
-//        }.getType());
-//        Toast.makeText(getContext(),vlist.toString(),Toast.LENGTH_SHORT).show();
         vlist = dbHelper.getGivenVideos(loc);
         videoList.clear();
         videoList.addAll(vlist);
 
         // refreshing recycler view
         mAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onClick(View v) {
+        Log.i("view click","view");
+        if(v.getId()==R.id.thumbnail){
+            Toast.makeText(getContext(),"view click",Toast.LENGTH_SHORT).show();
+        }
+        Bundle bundle = new Bundle();
+        bundle.putInt("position", v.getId());
+        Intent intent = new Intent(getContext(),VideoPlayerActivity.class);
+        startActivity(intent,bundle);
+
     }
 
     public class GridSpacingItemDecoration extends RecyclerView.ItemDecoration {

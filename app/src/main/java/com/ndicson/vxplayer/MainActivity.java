@@ -1,5 +1,6 @@
 package com.ndicson.vxplayer;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -7,6 +8,7 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -20,7 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import android.support.v7.widget.Toolbar;
-
+import android.widget.Toast;
 
 
 public class MainActivity extends AppCompatActivity implements OnlineFragment.OnFragmentInteractionListener ,LocalFragment.OnFragmentInteractionListener{
@@ -46,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements OnlineFragment.On
 
     private List<Video> vlist;
     public String loc;
+    private int REREQUESTCODE=100;
 
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -131,11 +134,13 @@ public class MainActivity extends AppCompatActivity implements OnlineFragment.On
         super.onOptionsItemSelected(item);
         switch(item.getItemId()) {
             case R.id.addVideo:
-//                readSD();
+                Intent dbintent = new Intent(this,VideoIndb.class);
+                startActivityForResult(dbintent,REREQUESTCODE);
+                break;
 
             case R.id.rdSD:
                 readSD();
-                return true;
+                break;
 //
 //            case R.id.Delete_Video:
 //                AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -145,7 +150,7 @@ public class MainActivity extends AppCompatActivity implements OnlineFragment.On
 //                                mydb.deleteVideo(id_To_Update);
 //                                Toast.makeText(getApplicationContext(), "Deleted Successfully",
 //                                        Toast.LENGTH_SHORT).show();
-//                                Intent intent = new Intent(getApplicationContext(),HomeActivity.class);
+//                                Intent intent = new Intent(getApplicationContext(),VideoIndb.class);
 //                                startActivity(intent);
 //                            }
 //                        })
@@ -158,31 +163,31 @@ public class MainActivity extends AppCompatActivity implements OnlineFragment.On
 //                AlertDialog d = builder.create();
 //                d.setTitle("Are you sure");
 //                d.show();
-//
-//                return true;
+
             default:
                 return super.onOptionsItemSelected(item);
 
         }
+        return true;
     }
 
     private void readSD() {
-        VideoManager vmgr = new VideoManager();
-        ArrayList<HashMap<String, String>> vls = vmgr.getPlayList();
-        Video mySDvid = new Video();
-        ArrayList<Video> li=new ArrayList<>();
-        ArrayList<String>g=new ArrayList<>();
-        for (HashMap<String, String> arr:vls
-             ) {
-            g.add(arr.get("videoTitle"));
-            g.add(arr.get("videoPath"));
-            mySDvid.setTitle(arr.get("videoTitle"));
-            mySDvid.setTitle(arr.get("videoPath"));
-            li.add(mySDvid);
-        }
-        playlistAdapter pls = new playlistAdapter(getApplicationContext(),li);
+//        VideoManager vmgr = new VideoManager();
+//        ArrayList<HashMap<String, String>> vls = vmgr.getPlayList();
+//        Video mySDvid = new Video();
+//        ArrayList<Video> li=new ArrayList<>();
+//        ArrayList<String>g=new ArrayList<>();
+//        for (HashMap<String, String> arr:vls
+//             ) {
+//            g.add(arr.get("videoTitle"));
+//            g.add(arr.get("videoPath"));
+//            mySDvid.setTitle(arr.get("videoTitle"));
+//            mySDvid.setTitle(arr.get("videoPath"));
+//            li.add(mySDvid);
+//        }
+//        playlistAdapter pls = new playlistAdapter(getApplicationContext(),li,R.layout.sd_item);
         Intent dle = new Intent(this,SDcard.class);
-        dle.putStringArrayListExtra("data",g);
+//        dle.putStringArrayListExtra("data",g);
         startActivity(dle);
     }
 

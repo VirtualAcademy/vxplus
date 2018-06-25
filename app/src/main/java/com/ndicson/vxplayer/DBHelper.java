@@ -248,44 +248,80 @@ public class DBHelper extends SQLiteOpenHelper {
         // Variables
         ArrayList<HashMap<String, String>> videoList = new ArrayList<HashMap<String, String>>();
 
-        List<Video> items;
-        String jsondata = readFilefromAsset(context,ls);
+        List<Video> jsonitems;
 
-        items = new Gson().fromJson(jsondata, new TypeToken<List<Video>>() {}.getType());
+        if (ls.toLowerCase().equals("local")) {
+            String jsondata = readFilefromAsset(context, Video.LOCALDATA);
 
-        ArrayList<HashMap<String, String>> videoListData = new ArrayList<HashMap<String, String>>();
+            // mapping json data to video object list
+            jsonitems = new Gson().fromJson(jsondata, new TypeToken<List<Video>>() {
+            }.getType());
 
-        VideoManager plm = new VideoManager();
-        // get all video from sdcard
-        videoList = plm.getPlayList();
+            VideoManager plm = new VideoManager();
+            // get all video from sdcard
+            videoList = plm.getPlayList();
 
-        // looping through playlist
-        for (int i = 0; i<items.size(); i++) {
-            // creating new HashMap
+            // looping through playlist
+            for (int i = 0; i < jsonitems.size(); i++) {
+//                Log.i("LOCATION: ", "is local");
+                // creating new HashMap
+                Video vItem = jsonitems.get(i);
+//                HashMap<String, String> video = videoList.get(i);
+                // Get info
+//                if(video.get("videoTitle").equalsIgnoreCase(vItem.getImage())){
+//                    Log.i("Equal","Title match");
+//                }
 
-            Video v=items.get(i);
-            // Get info
-            String Title = v.getTitle();
-            String Location = v.getLocation();
-            if(Location.toLowerCase().contains("local")){
-                HashMap<String, String> video = videoList.get(i);
-                if(video.get("videoTitle").toString().toLowerCase().contains(Title.toLowerCase())){
-                    String pathV = video.get("videoPath");
-                    v.setLink(pathV);
-                    if(insertVideo(v.getTitle(),v.getLocation(),v.getLink(),v.getImage())) {
-                        Log.i("database",String.valueOf(i)+" inserted");
-                        Toast.makeText(context, String.valueOf(i)+" inserted "+v.getLocation(), Toast.LENGTH_SHORT).show();
+                String fileTitle = vItem.getTitle();
+                for (HashMap<String, String> s:videoList
+                     ) {
+
+                    Log.i("Title is equal: ",fileTitle+" and "+ s.get("videoTitle"));
+                    if (s.get("videoTitle").toLowerCase().trim().startsWith(fileTitle.toLowerCase().trim().substring(0,2)) || fileTitle.toLowerCase().contains(s.get("videoTitle")) ) {
+                        vItem.setLink(s.get("videoPath"));
+                        Log.i("Exceptional : ", s.get("videoTitle"));
+                        if (insertVideo(vItem.getTitle(), vItem.getLocation(), vItem.getLink(), vItem.getImage())) {
+                            Log.i("inserted: ", "into db");
+                        }
+                    }
                 }
-//                insertVideo(v.getTitle(),v.getLocation(),v.getLink(),v.getImage());
-            }
-//                Toast.makeText(context, String.valueOf(i)+" inserted", Toast.LENGTH_SHORT).show();
-            }else if(insertVideo(v.getTitle(),v.getLocation(),v.getLink(),v.getImage())) {
-                Log.i("database", String.valueOf(i) + " inserted");
-            }
-        }
-        Toast.makeText(context,"database populated",Toast.LENGTH_SHORT).show();
 
+//                    }
+//
+//                }
+//                String jsonTitle = video.get("videoTitle");
+//
+//                Log.i("Title is equal: ", Title+"jsonTitle: "+jsonTitle);
+//                if (Title.contains(jsonTitle)) {
+//                    Log.i("Title is equal: ", Title);
+//                    String pathV = video.get("videoPath");
+//                    vItem.setLink(pathV);
+//                    if (insertVideo(vItem.getTitle(), vItem.getLocation(), vItem.getLink(), vItem.getImage())) {
+//                        Log.i("inserted: ", "into db");
+//                    }
+//                }
             }
+        } else {
+            String jsondata = readFilefromAsset(context, Video.ONLINEDATA);
+
+            // mapping json data to video object list
+            jsonitems = new Gson().fromJson(jsondata, new TypeToken<List<Video>>() {
+            }.getType());
+
+            // looping through playlist
+
+            for (int i = 0; i < jsonitems.size(); i++) {
+                // creating new HashMap
+
+                Video v = jsonitems.get(i);
+                if (insertVideo(v.getTitle(), v.getLocation(), v.getLink(), v.getImage())) {
+                    Log.i("database", String.valueOf(i) + " inserted");
+//                        Toast.makeText(context, String.valueOf(i)+" inserted "+v.getLocation(), Toast.LENGTH_SHORT).show();
+                }
+            }
+            Toast.makeText(context, "database populated", Toast.LENGTH_SHORT).show();
+        }
+    }
 
 
 }

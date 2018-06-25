@@ -44,23 +44,25 @@ import com.google.gson.reflect.TypeToken;
  */
 public class OnlineFragment extends Fragment {
 
-    private static final String TAG = OnlineFragment.class.getSimpleName();
-    private static final String URL = "https://api.androidhive.info/json/movies_2017.json";
-
     private RecyclerView recyclerView;
     private List<Video> videoList;
     private VideoAdapter mAdapter;
+    private TextView textView;
+    List<Video> vlist;
+    //    private Context vFContext;
+//
+    private DBHelper dbHelper; //= new DBHelper(getContext());
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private static final String ARG_PARAM1 = "videolocation";
+//    private static final String ARG_PARAM2 = "param2";
 
     // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private String vLocation;
+//    private String mParam2;
 
-//    private OnFragmentInteractionListener mListener;
+    private OnFragmentInteractionListener mListener;
 
     public OnlineFragment() {
         // Required empty public constructor
@@ -71,15 +73,13 @@ public class OnlineFragment extends Fragment {
      * this fragment using the provided parameters.
      *
      * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
      * @return A new instance of fragment OnlineFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static OnlineFragment newInstance(String param1, String param2) {
+    public static OnlineFragment newInstance(String param1) {
         OnlineFragment fragment = new OnlineFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -87,23 +87,30 @@ public class OnlineFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        videoList = new ArrayList<>();
+        mAdapter = new VideoAdapter(getActivity(), videoList);
+        dbHelper = DBHelper.getInstance(getContext());
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            vLocation = getArguments().getString(ARG_PARAM1);
         }
+//        List<Video> vList = dbHelper.getAllVideos();
+//        fetchItems(vLocation);
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
 
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_online, container, false);
+        View view = inflater.inflate(R.layout.fragment_video, container, false);
+
 
         recyclerView = view.findViewById(R.id.recycler_view);
-        videoList = new ArrayList<>();
-        mAdapter = new VideoAdapter(getActivity(), videoList);
+        textView = view.findViewById(R.id.displaytxt);
+
+        textView.setText(vLocation.toUpperCase()+" VIDEOS");
+        textView.setTextColor(getResources().getColor(R.color.bgBottomNavigation));
 
         RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 3);
         recyclerView.setLayoutManager(mLayoutManager);
@@ -111,45 +118,39 @@ public class OnlineFragment extends Fragment {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
         recyclerView.setNestedScrollingEnabled(false);
-
-        fetchOnlineItems();
+//        recyclerView.setClickable(true);
+//        recyclerView.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Toast.makeText(getContext(),"id clicked: "+String.valueOf(v.getId()),Toast.LENGTH_SHORT).show();
+//            }
+//        });
+////        vlist = dbHelper.getAllVideos();
+        fetchItems(vLocation);
         return view;
     }
 
-    private String readJson(Context context) {
-        String json = null;
-        try {
-            InputStream is = context.getAssets().open("videodata.json");
-
-            int size = is.available();
-
-            byte[] buffer = new byte[size];
-
-            is.read(buffer);
-
-            is.close();
-
-            json = new String(buffer, "UTF-8");
-
-
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            return null;
-        }
-        return json;
-
-    }
-
-    private void fetchOnlineItems() {
-        String jsondata = readJson(getContext());
-        List<Video> items = new Gson().fromJson(jsondata, new TypeToken<List<Video>>() {
-            }.getType());
+    public void fetchItems(String loc) {
+        vlist = dbHelper.getGivenVideos(loc);
         videoList.clear();
-        videoList.addAll(items);
+        videoList.addAll(vlist);
 
         // refreshing recycler view
-         mAdapter.notifyDataSetChanged();
+        mAdapter.notifyDataSetChanged();
     }
+
+//    @Override
+//    public void onClick(View v) {
+//        Log.i("view click","view");
+//        if(v.getId()==R.id.thumbnail){
+//            Toast.makeText(getContext(),"view click",Toast.LENGTH_SHORT).show();
+//        }
+//        Bundle bundle = new Bundle();
+//        bundle.putInt("position", v.getId());
+//        Intent intent = new Intent(getContext(),VideoPlayerActivity.class);
+//        startActivity(intent,bundle);
+//
+//    }
 
     public class GridSpacingItemDecoration extends RecyclerView.ItemDecoration {
 
@@ -194,89 +195,42 @@ public class OnlineFragment extends Fragment {
         return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics()));
     }
 
-//    class OnlineAdapter extends RecyclerView.Adapter<OnlineAdapter.MyViewHolder> {
-//        private Context context;
-//        private List<Video> videoList;
-//
-//        public class MyViewHolder extends RecyclerView.ViewHolder {
-//            public TextView name, location;
-//            public ImageView thumbnail;
-//
-//            public MyViewHolder(View view) {
-//                super(view);
-//                name = view.findViewById(R.id.title);
-//                location = view.findViewById(R.id.location);
-//                thumbnail = view.findViewById(R.id.thumbnail);
-//            }
-//        }
-//
-//
-//        public OnlineAdapter(Context context, List<Video> videoList) {
-//            this.context = context;
-//            this.videoList = videoList;
-//        }
-//
-//        @Override
-//        public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-//            View itemView = LayoutInflater.from(parent.getContext())
-//                    .inflate(R.layout.onlinevideo_item_row, parent, false);
-//
-//            return new MyViewHolder(itemView);
-//        }
-//
-//        @Override
-//        public void onBindViewHolder(MyViewHolder holder, final int position) {
-//            final Video video = videoList.get(position);
-//            holder.name.setText(video.getTitle());
-//            holder.location.setText(video.getLink());
-//
-//            Glide.with(context)
-//                    .load(video.getImage())
-//                    .into(holder.thumbnail);
-//        }
-//
-//        @Override
-//        public int getItemCount() {
-//            return videoList.size();
-//        }
-//    }
-    
-//    // TODO: Rename method, update argument and hook method into UI event
-//    public void onButtonPressed(Uri uri) {
-//        if (mListener != null) {
-//            mListener.onFragmentInteraction(uri);
-//        }
-//    }
-//
-//    @Override
-//    public void onAttach(Context context) {
-//        super.onAttach(context);
-//        if (context instanceof OnFragmentInteractionListener) {
-//            mListener = (OnFragmentInteractionListener) context;
-//        } else {
-//            throw new RuntimeException(context.toString()
-//                    + " must implement OnFragmentInteractionListener");
-//        }
-//    }
-//
-//    @Override
-//    public void onDetach() {
-//        super.onDetach();
-//        mListener = null;
-//    }
-//
-//    /**
-//     * This interface must be implemented by activities that contain this
-//     * fragment to allow an interaction in this fragment to be communicated
-//     * to the activity and potentially other fragments contained in that
-//     * activity.
-//     * <p>
-//     * See the Android Training lesson <a href=
-//     * "http://developer.android.com/training/basics/fragments/communicating.html"
-//     * >Communicating with Other Fragments</a> for more information.
-//     */
-//    public interface OnFragmentInteractionListener {
-//        // TODO: Update argument type and name
-//        void onFragmentInteraction(Uri uri);
-//    }
+    // TODO: Rename method, update argument and hook method into UI event
+    public void onButtonPressed(Uri uri) {
+        if (mListener != null) {
+            mListener.onFragmentInteraction(uri);
+        }
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
+    /**
+     * This interface must be implemented by activities that contain this
+     * fragment to allow an interaction in this fragment to be communicated
+     * to the activity and potentially other fragments contained in that
+     * activity.
+     * <p>
+     * See the Android Training lesson <a href=
+     * "http://developer.android.com/training/basics/fragments/communicating.html"
+     * >Communicating with Other Fragments</a> for more information.
+     */
+    public interface OnFragmentInteractionListener {
+        // TODO: Update argument type and name
+        void onFragmentInteraction(Uri uri);
+    }
 }

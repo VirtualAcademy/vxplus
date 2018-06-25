@@ -1,6 +1,7 @@
 package com.ndicson.vxplayer;
 
 import android.content.Context;
+import android.support.annotation.LayoutRes;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,8 +11,11 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 public class playlistAdapter extends ArrayAdapter<Video> {
-    public playlistAdapter(Context context, ArrayList<Video> videos) {
+    private int Srcs;
+
+    public playlistAdapter(Context context, ArrayList<Video> videos, int srcs) {
         super(context, 0, videos);
+        this.Srcs = srcs;
     }
 
     @Override
@@ -20,13 +24,14 @@ public class playlistAdapter extends ArrayAdapter<Video> {
         Video video = getItem(position);
         // Check if an existing view is being reused, otherwise inflate the view
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.playlist_item, parent, false);
+            convertView = LayoutInflater.from(getContext()).inflate(Srcs, parent, false);
         }
         // Lookup view for data population
         TextView title = (TextView) convertView.findViewById(R.id.videoTitle);
+//        title.setWidth(200);
 
         // Populate the data into the template view using the data object
-        title.setText(video.title);
+        title.setText(video.getTitle());
 
         // Return the completed view to render on screen
         return convertView;

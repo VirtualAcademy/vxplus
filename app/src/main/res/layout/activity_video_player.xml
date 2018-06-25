@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
-        <com.ndicson.vxplayerpro.ResizeSurfaceView
+        <com.ndicson.vxplayer.ResizeSurfaceView
             android:id="@+id/videoSurface"
             android:layout_gravity="center"
             android:layout_width="match_parent"

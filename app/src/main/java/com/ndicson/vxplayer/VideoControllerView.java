@@ -33,6 +33,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -107,7 +108,8 @@ public class VideoControllerView extends FrameLayout implements VideoGestureList
     private Handler mHandler = new ControllerViewHandler(this);
 
     // Variables
-    private ArrayList<HashMap<String, String>> videoList = new ArrayList<HashMap<String, String>>();
+//    private ArrayList<HashMap<String, String>> videoList = new ArrayList<HashMap<String, String>>();
+    private List<Video> videoList = DBHelper.getInstance(mContext).getAllVideos();
     private int currentVideoIndex;
     private ImageButton mNextButton;
 
@@ -975,28 +977,24 @@ public class VideoControllerView extends FrameLayout implements VideoGestureList
     }
 
 
-    //    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+
     public int showPlayList() {
 
-        ArrayList<HashMap<String, String>> videoListData = new ArrayList<HashMap<String, String>>();
+        // Adding menuItems to ListView
 
-        VideoManager plm = new VideoManager();
-        // get all video from sdcard
-        this.videoList = plm.getPlayList();
+        ArrayList<Video> myvideo = new ArrayList<>();
 
-        // looping through playlist
-        for (int i = 0; i < videoList.size(); i++) {
-            // creating new HashMap
-            HashMap<String, String> video = videoList.get(i);
+        for (Video vid:videoList
+             ) {
+            myvideo.add(vid);
 
-            // adding HashList to ArrayList
-            videoListData.add(video);
         }
 
-        // Adding menuItems to ListView
-        ListAdapter adapter = new SimpleAdapter(getContext(), videoListData,
-                R.layout.playlist_item, new String[]{"videoTitle"}, new int[]{
-                R.id.videoTitle});
+        ListAdapter adapter = new playlistAdapter(getContext(), myvideo, R.layout.playlist_item);
+//        // Adding menuItems to ListView
+//        ListAdapter adapter = new SimpleAdapter(getContext(), videoListData,
+//                R.layout.playlist_item, new String[]{"videoTitle"}, new int[]{
+//                R.id.videoTitle});
         ListView playlistview = (ListView) mRootView.findViewById(R.id.playlist_center);
 
         playlistview.setAdapter(adapter);
@@ -1023,8 +1021,20 @@ public class VideoControllerView extends FrameLayout implements VideoGestureList
 
     private void startNewActivity(int currentVideoIndex) {
         Intent intent = new Intent(getContext(),VideoPlayerActivity.class);
-        intent.putExtra("currentIndex",currentVideoIndex);
-        mContext.startActivity(intent);
+
+        int vidpos = currentVideoIndex;
+
+        int currentIndex = videoList.get(vidpos).getId();
+        String currentUri = videoList.get(vidpos).getLink();
+        String currentTitle = videoList.get(vidpos).getTitle();
+        String currentLoc = videoList.get(vidpos).getLocation();
+//                bundle.putInt("currentIndex", currentIndex);
+        Intent in = new Intent(mContext,VideoPlayerActivity.class);
+        in.putExtra("currentIndex", currentIndex);
+        in.putExtra("currentTitle", currentTitle);
+        in.putExtra("currentUri", currentUri);
+        in.putExtra("currentLoc", currentLoc);
+        mContext.startActivity(in);
         mContext.finish();
         toggleControllerView();
     }

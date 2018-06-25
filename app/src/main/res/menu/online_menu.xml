@@ -4,13 +4,13 @@
 
     <item
         android:id="@+id/addVideo"
-        android:tooltipText="Click to add video"
         android:icon="@drawable/ic_home_black_24dp"
         android:title="@string/Add_New" />
 
     <item
         android:id="@+id/rdSD"
         android:icon="@drawable/ic_action_online"
-        android:title="@string/RdSD" />
+        android:title="@string/go" />
+
 
 </menu>

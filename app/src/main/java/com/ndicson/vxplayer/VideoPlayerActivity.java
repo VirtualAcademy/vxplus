@@ -21,6 +21,7 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 
 public class VideoPlayerActivity extends Activity implements SurfaceHolder.Callback, MediaPlayer.OnPreparedListener, VideoControllerView.MediaPlayerControlListener, MediaPlayer.OnVideoSizeChangedListener, MediaPlayer.OnCompletionListener {
@@ -38,6 +39,7 @@ public class VideoPlayerActivity extends Activity implements SurfaceHolder.Callb
     private VideoControllerView.MediaPlayerControlListener mMediaPlayerControlListener;
 
     private ArrayList<HashMap<String, String>> videoList = new ArrayList<HashMap<String, String>>();
+    private List<Video> AllVideosList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,15 +65,22 @@ public class VideoPlayerActivity extends Activity implements SurfaceHolder.Callb
         //Video list
         VideoManager videoManager = new VideoManager();
         videoList = videoManager.getPlayList();
+        AllVideosList = DBHelper.getInstance(getApplicationContext()).getAllVideos();
         HashMap<String, String> video = videoList.get(currentVideoIndex);
 
         Intent intent = getIntent();
 
         if (intent.hasExtra("currentIndex")){
             int indexChoice = (int) intent.getExtras().get("currentIndex");
-            playVideo(indexChoice);
+            String indexTitle = (String) intent.getExtras().get("currentTitle");
+            String indexUri = (String) intent.getExtras().get("currentUri");
+            playVideo(indexChoice, indexTitle,indexUri);
         }else {
-            playVideo(controller.getChoice());
+            Video videofromlist = AllVideosList.get(currentVideoIndex);
+            int indexChoice = (int) videofromlist.getId();
+            String indexTitle = (String) videofromlist.getTitle();
+            String indexUri = (String) videofromlist.getLink();
+            playVideo(indexChoice, indexTitle, indexUri);
         }
 
 
@@ -89,7 +98,9 @@ public class VideoPlayerActivity extends Activity implements SurfaceHolder.Callb
 
         Intent intent = getIntent();
         int indexChoice = (int) intent.getExtras().get("currentIndex");
-        playVideo(indexChoice);
+        String indexTitle = (String) intent.getExtras().get("currentTitle");
+        String indexUri = (String) intent.getExtras().get("currentUri");
+        playVideo(indexChoice, indexTitle,indexUri);
         super.onRestart();
     }
 
@@ -284,9 +295,10 @@ public class VideoPlayerActivity extends Activity implements SurfaceHolder.Callb
      * Function to play a song
      * @param currentVideoIndex - index of song
      * */
-    private void playVideo(int currentVideoIndex) {
+    private void playVideo(int currentVideoIndex, String currentTitle, String currentUri) {
 
-        Toast.makeText(getApplicationContext(),"playing id: "+String.valueOf(currentVideoIndex),Toast.LENGTH_SHORT).show();
+//        Video videofromlist = AllVideosList.get(currentVideoIndex);
+        Toast.makeText(getApplicationContext(),"playing id: "+currentVideoIndex+" and path: "+currentUri,Toast.LENGTH_SHORT).show();
 
         // Play video
         try {
@@ -294,15 +306,17 @@ public class VideoPlayerActivity extends Activity implements SurfaceHolder.Callb
             mMediaPlayer = new MediaPlayer();
 
             // Displaying Video title
-            String videoTitle = videoList.get(currentVideoIndex).get("videoTitle");
+//            String videoTitle = videoList.get(currentVideoIndex).get("videoTitle");
+            String vTitle = currentTitle;//videofromlist.getTitle();
+            String vUri = currentUri;//videofromlist.getLink();
 
-            controller.setVideoLable("videoTitle");
+            controller.setVideoLable(vTitle);
 //            controller.getId();
 
             mMediaPlayer.setOnVideoSizeChangedListener(this);
 
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            mMediaPlayer.setDataSource(this, Uri.parse("http://download.blender.org/peach/bigbuckbunny_movies/big_buck_bunny_480p_surround-fix.avi"));//videoList.get(currentVideoIndex).get("videoPath")));
+            mMediaPlayer.setDataSource(this, Uri.parse(vUri));//"http://download.blender.org/peach/bigbuckbunny_movies/big_buck_bunny_480p_surround-fix.avi"));//videoList.get(currentVideoIndex).get("videoPath")));
             mMediaPlayer.setOnPreparedListener(this);
             mMediaPlayer.setOnCompletionListener(this);
             controller.setEnabled(true);
